@@ -1,0 +1,18 @@
+[tool.ruff]
+# Same as Black.
+line-length = 120
+indent-width = 4
+
+# Enable the isort rules.
+extend-select = ["I"]
+
+[tool.ruff.lint.isort]
+section-order = [
+  "future",
+  "standard-library",
+  "third-party",
+  "first-party",
+  "local-folder",
+  "testing"
+]
+known-local-folder = ["shared", "user"]
