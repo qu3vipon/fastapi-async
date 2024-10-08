@@ -1,11 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException
 from starlette import status
 
+from shared.authentication.jwt import JWTService
 from shared.authentication.password import PasswordService
 from user.models import User
 from user.repository import UserRepository
 from user.request import UserAuthRequest
-from user.response import UserResponse
+from user.response import UserResponse, UserTokenResponse
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -15,7 +16,7 @@ router = APIRouter(prefix="/users", tags=["Users"])
     status_code=status.HTTP_201_CREATED,
     response_model=UserResponse,
 )
-def sign_up_user_handler(
+def user_sign_up_handler(
     body: UserAuthRequest,
     user_repo: UserRepository = Depends(),
     password_service: PasswordService = Depends(),
@@ -32,3 +33,31 @@ def sign_up_user_handler(
     )
     user_repo.save(user=new_user)
     return UserResponse.build(user=new_user)
+
+
+@router.post(
+    "/login",
+    status_code=status.HTTP_200_OK,
+    response_model=UserTokenResponse,
+)
+def login_user_handler(
+    body: UserAuthRequest,
+    user_repo: UserRepository = Depends(),
+    jwt_service: JWTService = Depends(),
+    password_service: PasswordService = Depends(),
+):
+    user: User | None = user_repo.get_user_by_username(username=body.username)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        )
+
+    if not password_service.check_password(plain_text=body.password, hashed_password=user.password_hash):
+        raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Unauthorized",
+            )
+
+    access_token = jwt_service.encode_access_token(user_id=user.id)
+    return UserTokenResponse.build(access_token=access_token)

@@ -1,5 +1,6 @@
 from schema import Schema
 
+from shared.authentication.jwt import JWTService
 from shared.authentication.password import PasswordService
 from user.models import User
 
@@ -28,3 +29,24 @@ class TestUser:
 
         assert user
         assert PasswordService().check_password(plain_text="test-pw", hashed_password=user.password_hash)
+
+    def test_log_in(self, client, test_session, test_user):
+        # given
+
+        # when
+        response = client.post(
+            "/users/login",
+            json={"username": "test", "password": "test-pw"}
+        )
+
+        # then
+        assert response.status_code == 200
+
+        assert Schema({"access_token": str}).validate(response.json())
+
+        access_token = response.json()["access_token"]
+        assert access_token
+
+        payload = JWTService().decode_access_token(access_token=access_token)
+        assert payload["user_id"] == test_user.id
+        assert payload["isa"]
