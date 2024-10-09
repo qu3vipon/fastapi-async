@@ -64,7 +64,6 @@ def user_login_handler(
     return UserTokenResponse.build(access_token=access_token)
 
 
-
 @router.get(
     "/me/friends",
     status_code=status.HTTP_200_OK,
