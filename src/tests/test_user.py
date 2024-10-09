@@ -62,7 +62,7 @@ class TestUser:
 
         assert Schema(
             {
-                "id": int,
+                "id": test_user_relation.friend_id,
                 "username": "friend",
             }
         ).validate(response.json()["friends"][0])

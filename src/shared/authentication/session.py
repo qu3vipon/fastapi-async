@@ -5,7 +5,7 @@ from fastapi import Request
 from user.models import User
 
 
-class InvalidSessionKey(Exception):
+class InvalidSessionKeyError(Exception):
     message: str = "Invalid Session Key"
 
 
@@ -20,4 +20,4 @@ class SessionService:
     def authenticate(request: Request) -> int:
         if user_id := request.session.get(SessionService.SESSION_KEY):
             return user_id
-        raise InvalidSessionKey
+        raise InvalidSessionKeyError
