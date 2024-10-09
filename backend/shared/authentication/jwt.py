@@ -1,8 +1,11 @@
-from fastapi import status, HTTPException
 import time
-from typing import TypedDict, ClassVar
+from typing import ClassVar, TypedDict
+
 import jwt
+
 from shared.config import settings
+
+
 class JWTPayloadTypedDict(TypedDict):
     user_id: int
     isa: float  # issued at (UNIX timestamp)

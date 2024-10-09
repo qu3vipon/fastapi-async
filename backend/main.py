@@ -1,6 +1,5 @@
-from fastapi import FastAPI, Request, status
+from fastapi import FastAPI
 from starlette.middleware.sessions import SessionMiddleware
-from starlette.responses import JSONResponse
 
 from shared.config import settings
 from user.api import router as user_router

@@ -1,17 +1,12 @@
-import base64
-import json
 
-import itsdangerous
 import pytest
 from fastapi.testclient import TestClient
+from main import app
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy_utils import create_database, database_exists
 
-from main import app
-
 from shared.authentication.password import PasswordService
-from shared.config import settings
 from shared.database.connection import get_db
 from shared.database.orm import Base
 from user.models import User, UserRelation
@@ -19,7 +14,7 @@ from user.models import User, UserRelation
 
 @pytest.fixture(scope="session")
 def test_db():
-    test_db_url = "postgresql://fast-async:fast-async-pw@127.0.0.1:54320/test"
+    test_db_url = "postgresql://chat:chat-pw@127.0.0.1:54320/test"
     if not database_exists(test_db_url):
         create_database(test_db_url)
 

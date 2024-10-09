@@ -1,5 +1,3 @@
-import base64
-import json
 
 from schema import Schema
 

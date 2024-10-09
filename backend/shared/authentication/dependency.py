@@ -1,7 +1,10 @@
-from fastapi import HTTPException, Depends
+from fastapi import Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from starlette import status
-from shared.authentication.jwt import JWTService, JWTPayloadTypedDict, InvalidTokenError
+
+from shared.authentication.jwt import InvalidTokenError, JWTPayloadTypedDict, JWTService
+
+
 def _get_jwt(
     auth_header: HTTPAuthorizationCredentials | None = Depends(HTTPBearer(auto_error=False)),
 ) -> str:

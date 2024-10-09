@@ -3,7 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.backend
-    container_name: fast-async-backend
+    container_name: chat-backend
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
     volumes:
       - ./backend:/app
@@ -15,7 +15,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.frontend
-    container_name: fast-async-frontend
+    container_name: chat-frontend
     command: streamlit run home.py
     volumes:
       - ./frontend:/app
@@ -24,23 +24,23 @@ services:
     depends_on:
       - backend
   db:
-    container_name: fast-async-db
+    container_name: chat-db
     image: postgres:16
     restart: always
     volumes:
-      - fast_async_db:/var/lib/postgresql/data
+      - chat_db:/var/lib/postgresql/data
     environment:
-      POSTGRES_DB: fast-async
-      POSTGRES_USER: fast-async
-      POSTGRES_PASSWORD: fast-async-pw
-      PGDATA: /var/lib/postgresql/data/fast-async/
+      POSTGRES_DB: chat
+      POSTGRES_USER: chat
+      POSTGRES_PASSWORD: chat-pw
+      PGDATA: /var/lib/postgresql/data/chat/
     ports:
       - "54320:5432"
   redis:
     image: redis:7.2.5
-    container_name: fast-async-redis
+    container_name: chat-redis
     ports:
       - "63790:6379"
 
 volumes:
-  fast_async_db:
+  chat_db:
