@@ -1,12 +1,13 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
 from starlette import status
 
+from shared.authentication.dependency import get_user_id
+from shared.authentication.jwt import JWTService
 from shared.authentication.password import PasswordService
-from shared.authentication.session import SessionService
 from user.models import User
 from user.repository import UserRepository
 from user.request import UserAuthRequest
-from user.response import FriendListResponse, UserResponse
+from user.response import FriendListResponse, UserResponse, UserTokenResponse
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -38,14 +39,13 @@ def user_sign_up_handler(
 @router.post(
     "/login",
     status_code=status.HTTP_200_OK,
-    response_model=UserResponse,
+    response_model=UserTokenResponse,
 )
 def user_login_handler(
-    request: Request,
     body: UserAuthRequest,
     user_repo: UserRepository = Depends(),
+    jwt_service: JWTService = Depends(),
     password_service: PasswordService = Depends(),
-    session_service: SessionService = Depends(),
 ):
     user: User | None = user_repo.get_user_by_username(username=body.username)
     if not user:
@@ -60,8 +60,9 @@ def user_login_handler(
             detail="Unauthorized",
         )
 
-    session_service.login(request=request, user=user)
-    return UserResponse.build(user=user)
+    access_token = jwt_service.encode_access_token(user_id=user.id)
+    return UserTokenResponse.build(access_token=access_token)
+
 
 
 @router.get(
@@ -70,7 +71,7 @@ def user_login_handler(
     response_model=FriendListResponse,
 )
 def get_user_friends_handler(
-    user_id: int = Depends(SessionService.authenticate),
+    user_id: int = Depends(get_user_id),
     user_repo: UserRepository = Depends(),
 ):
     user: User | None = user_repo.get_user_by_id(user_id=user_id)

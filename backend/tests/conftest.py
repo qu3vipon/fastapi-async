@@ -63,14 +63,6 @@ def test_user(test_session):
 
 
 @pytest.fixture(scope="function")
-def test_login_session(test_user) -> str:
-    raw_session: bytes = json.dumps({"UserID": test_user.id}).encode("utf-8")
-    encoded_session: bytes = base64.b64encode(raw_session)
-    signer = itsdangerous.TimestampSigner(settings.app_secret_key)
-    return signer.sign(value=encoded_session).decode("utf-8")
-
-
-@pytest.fixture(scope="function")
 def test_user_relation(test_session, test_user):
     password_hash = PasswordService().hash_password(plain_text="friend-pw")
     friend = User.create(username="friend", password_hash=password_hash)
