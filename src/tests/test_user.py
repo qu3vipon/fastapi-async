@@ -1,6 +1,8 @@
+import base64
+import json
+
 from schema import Schema
 
-from shared.authentication.jwt import JWTService
 from shared.authentication.password import PasswordService
 from user.models import User
 
@@ -42,11 +44,6 @@ class TestUser:
         # then
         assert response.status_code == 200
 
-        assert Schema({"access_token": str}).validate(response.json())
-
-        access_token = response.json()["access_token"]
-        assert access_token
-
-        payload = JWTService().decode_access_token(access_token=access_token)
-        assert payload["user_id"] == test_user.id
-        assert payload["isa"]
+        session = response.cookies["session"]
+        decoded_session = base64.b64decode(session).decode("utf-8")
+        assert json.loads(decoded_session) == {"UserId": test_user.id}

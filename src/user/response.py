@@ -17,11 +17,3 @@ class UserResponse(BaseModel):
             username=user.username,
             created_at=user.created_at
         )
-
-
-class UserTokenResponse(BaseModel):
-    access_token: str
-
-    @classmethod
-    def build(cls, access_token: str):
-        return cls(access_token=access_token)

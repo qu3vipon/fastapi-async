@@ -1,12 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from starlette import status
 
-from shared.authentication.jwt import JWTService
 from shared.authentication.password import PasswordService
+from shared.authentication.session import SessionService
 from user.models import User
 from user.repository import UserRepository
 from user.request import UserAuthRequest
-from user.response import UserResponse, UserTokenResponse
+from user.response import UserResponse
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -38,13 +38,14 @@ def user_sign_up_handler(
 @router.post(
     "/login",
     status_code=status.HTTP_200_OK,
-    response_model=UserTokenResponse,
+    response_model=UserResponse,
 )
-def login_user_handler(
+def user_login_handler(
+    request: Request,
     body: UserAuthRequest,
     user_repo: UserRepository = Depends(),
-    jwt_service: JWTService = Depends(),
     password_service: PasswordService = Depends(),
+    session_service: SessionService = Depends(),
 ):
     user: User | None = user_repo.get_user_by_username(username=body.username)
     if not user:
@@ -59,5 +60,5 @@ def login_user_handler(
                 detail="Unauthorized",
             )
 
-    access_token = jwt_service.encode_access_token(user_id=user.id)
-    return UserTokenResponse.build(access_token=access_token)
+    session_service.login(request=request, user=user)
+    return UserResponse.build(user=user)

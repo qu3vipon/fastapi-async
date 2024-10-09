@@ -17,7 +17,6 @@ engine = get_engine()
 SessionFactory = sessionmaker(autocommit=False, autoflush=False, expire_on_commit=False, bind=engine)
 
 
-@contextmanager
 def get_db() -> Generator[Session, None, None]:
     db = SessionFactory()
     try:
