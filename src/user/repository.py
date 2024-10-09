@@ -29,7 +29,8 @@ class UserRepository:
                 select(
                     UserRelation.friend_id,
                     User.username,
-                ).join(User, UserRelation.friend_id == User.id)
+                )
+                .join(User, UserRelation.friend_id == User.id)
                 .where(UserRelation.user_id == user_id)
             ).all()
         )

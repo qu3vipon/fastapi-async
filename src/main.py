@@ -6,7 +6,6 @@ from shared.authentication.session import InvalidSessionKeyError
 from shared.config import settings
 from user.api import router as user_router
 
-
 app = FastAPI(title="FastAPI Async")
 app.add_middleware(SessionMiddleware, secret_key=settings.app_secret_key)
 app.include_router(user_router)

@@ -6,7 +6,7 @@ from shared.authentication.session import SessionService
 from user.models import User
 from user.repository import UserRepository
 from user.request import UserAuthRequest
-from user.response import UserResponse, FriendListResponse
+from user.response import FriendListResponse, UserResponse
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -56,9 +56,9 @@ def user_login_handler(
 
     if not password_service.check_password(plain_text=body.password, hashed_password=user.password_hash):
         raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Unauthorized",
-            )
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Unauthorized",
+        )
 
     session_service.login(request=request, user=user)
     return UserResponse.build(user=user)

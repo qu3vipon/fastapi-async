@@ -3,14 +3,13 @@ import json
 
 import itsdangerous
 import pytest
+from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy_utils import database_exists, create_database
-
-from fastapi.testclient import TestClient
-from starlette.middleware.sessions import SessionMiddleware
+from sqlalchemy_utils import create_database, database_exists
 
 from main import app
+
 from shared.authentication.password import PasswordService
 from shared.config import settings
 from shared.database.connection import get_db

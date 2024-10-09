@@ -1,11 +1,9 @@
 import base64
 import json
 
-import itsdangerous
 from schema import Schema
 
 from shared.authentication.password import PasswordService
-from shared.config import settings
 from user.models import User
 
 
@@ -14,10 +12,7 @@ class TestUser:
         # given
 
         # when
-        response = client.post(
-            "/users/sign-up",
-            json={"username": "test", "password": "test-pw"}
-        )
+        response = client.post("/users/sign-up", json={"username": "test", "password": "test-pw"})
 
         # then
         assert response.status_code == 201
@@ -38,10 +33,7 @@ class TestUser:
         # given
 
         # when
-        response = client.post(
-            "/users/login",
-            json={"username": "test", "password": "test-pw"}
-        )
+        response = client.post("/users/login", json={"username": "test", "password": "test-pw"})
 
         # then
         assert response.status_code == 200

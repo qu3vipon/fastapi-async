@@ -12,11 +12,7 @@ class UserResponse(BaseModel):
 
     @classmethod
     def build(cls, user: User):
-        return cls(
-            id=user.id,
-            username=user.username,
-            created_at=user.created_at
-        )
+        return cls(id=user.id, username=user.username, created_at=user.created_at)
 
 
 class FriendResponse(BaseModel):
