@@ -6,7 +6,7 @@ from shared.authentication.session import SessionService
 from user.models import User
 from user.repository import UserRepository
 from user.request import UserAuthRequest
-from user.response import UserResponse
+from user.response import UserResponse, FriendListResponse
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -62,3 +62,23 @@ def user_login_handler(
 
     session_service.login(request=request, user=user)
     return UserResponse.build(user=user)
+
+
+@router.get(
+    "/me/friends",
+    status_code=status.HTTP_200_OK,
+    response_model=FriendListResponse,
+)
+def get_user_friends_handler(
+    user_id: int = Depends(SessionService.authenticate),
+    user_repo: UserRepository = Depends(),
+):
+    user: User | None = user_repo.get_user_by_id(user_id=user_id)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        )
+
+    friends: list[tuple[int, str]] = user_repo.get_friends(user_id=user_id)
+    return FriendListResponse.build(friends=friends)

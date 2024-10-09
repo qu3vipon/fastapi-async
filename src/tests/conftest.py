@@ -1,15 +1,21 @@
+import base64
+import json
+
+import itsdangerous
 import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy_utils import database_exists, create_database
 
 from fastapi.testclient import TestClient
+from starlette.middleware.sessions import SessionMiddleware
 
 from main import app
 from shared.authentication.password import PasswordService
+from shared.config import settings
 from shared.database.connection import get_db
 from shared.database.orm import Base
-from user.models import User
+from user.models import User, UserRelation
 
 
 @pytest.fixture(scope="session")
@@ -55,3 +61,24 @@ def test_user(test_session):
     test_session.add(user)
     test_session.commit()
     return user
+
+
+@pytest.fixture(scope="function")
+def test_login_session(test_user) -> str:
+    raw_session: bytes = json.dumps({"UserID": test_user.id}).encode("utf-8")
+    encoded_session: bytes = base64.b64encode(raw_session)
+    signer = itsdangerous.TimestampSigner(settings.app_secret_key)
+    return signer.sign(value=encoded_session).decode("utf-8")
+
+
+@pytest.fixture(scope="function")
+def test_user_relation(test_session, test_user):
+    password_hash = PasswordService().hash_password(plain_text="friend-pw")
+    friend = User.create(username="friend", password_hash=password_hash)
+    test_session.add(friend)
+    test_session.flush()
+
+    relation = UserRelation.add_friend(me=test_user, friend=friend)
+    test_session.add(relation)
+    test_session.commit()
+    return relation

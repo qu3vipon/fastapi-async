@@ -17,3 +17,16 @@ class UserResponse(BaseModel):
             username=user.username,
             created_at=user.created_at
         )
+
+
+class FriendResponse(BaseModel):
+    id: int
+    username: str
+
+
+class FriendListResponse(BaseModel):
+    friends: list[FriendResponse]
+
+    @classmethod
+    def build(cls, friends: list[tuple[int, str]]):
+        return cls(friends=[FriendResponse(id=f[0], username=f[1]) for f in friends])

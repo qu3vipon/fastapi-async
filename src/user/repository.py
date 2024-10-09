@@ -1,9 +1,9 @@
 from fastapi import Depends
-from sqlalchemy import exists
+from sqlalchemy import exists, select
 from sqlalchemy.orm import Session
 
 from shared.database.connection import get_db
-from user.models import User
+from user.models import User, UserRelation
 
 
 class UserRepository:
@@ -23,9 +23,13 @@ class UserRepository:
     def validate_username(self, username: str) -> bool:
         return not self.db.query(exists().where(User.username == username)).scalar()
 
-    def validate_email(self, email: str) -> bool:
-        return not self.db.query(exists().where(User.email == email)).scalar()
-
-    def delete_user(self, user: User) -> None:
-        self.db.delete(user)
-        self.db.commit()
+    def get_friends(self, user_id: int):
+        return list(
+            self.db.execute(
+                select(
+                    UserRelation.friend_id,
+                    User.username,
+                ).join(User, UserRelation.friend_id == User.id)
+                .where(UserRelation.user_id == user_id)
+            ).all()
+        )
