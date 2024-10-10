@@ -14,7 +14,8 @@ def _get_jwt(
             detail="JWT Not provided",
         )
     return auth_header.credentials
-def get_user_id(
+
+def authenticate(
     access_token: str = Depends(_get_jwt),
     jwt_service: JWTService = Depends(),
 ) -> int:

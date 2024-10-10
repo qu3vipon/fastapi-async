@@ -6,10 +6,11 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy_utils import create_database, database_exists
 
+from shared.authentication.jwt import JWTService
 from shared.authentication.password import PasswordService
 from shared.database.connection import get_db
 from shared.database.orm import Base
-from user.models import User, UserRelation
+from user.models import User
 
 
 @pytest.fixture(scope="session")
@@ -56,15 +57,16 @@ def test_user(test_session):
     test_session.commit()
     return user
 
+@pytest.fixture(scope="function")
+def test_friend(test_session):
+    password_hash = PasswordService().hash_password(plain_text="friend-pw")
+    user = User.create(username="friend", password_hash=password_hash)
+    test_session.add(user)
+    test_session.commit()
+    return user
 
 @pytest.fixture(scope="function")
-def test_user_relation(test_session, test_user):
-    password_hash = PasswordService().hash_password(plain_text="friend-pw")
-    friend = User.create(username="friend", password_hash=password_hash)
-    test_session.add(friend)
-    test_session.flush()
+def access_token(test_user):
+    return JWTService().encode_access_token(user_id=test_user.id)
 
-    relation = UserRelation.add_friend(me=test_user, friend=friend)
-    test_session.add(relation)
-    test_session.commit()
-    return relation
+

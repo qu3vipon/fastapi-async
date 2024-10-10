@@ -1,15 +1,28 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Body
 from starlette import status
 
-from shared.authentication.dependency import get_user_id
+from shared.authentication.dependency import authenticate
 from shared.authentication.jwt import JWTService
 from shared.authentication.password import PasswordService
 from user.models import User
 from user.repository import UserRepository
 from user.request import UserAuthRequest
-from user.response import FriendListResponse, UserResponse, UserTokenResponse
+from user.response import UserResponse, UserTokenResponse, UserListResponse
 
 router = APIRouter(prefix="/users", tags=["Users"])
+
+
+@router.get(
+    "",
+    status_code=status.HTTP_200_OK,
+    response_model=UserListResponse,
+)
+def get_users_handler(
+    me_id: int = Depends(authenticate),
+    user_repo: UserRepository = Depends(),
+):
+    users: list[User] = user_repo.get_users(me_id=me_id)
+    return UserListResponse.build(users=users)
 
 
 @router.post(
@@ -32,7 +45,7 @@ def user_sign_up_handler(
         username=body.username,
         password_hash=password_service.hash_password(plain_text=body.password),
     )
-    user_repo.save(user=new_user)
+    user_repo.save(instance=new_user)
     return UserResponse.build(user=new_user)
 
 
@@ -62,23 +75,3 @@ def user_login_handler(
 
     access_token = jwt_service.encode_access_token(user_id=user.id)
     return UserTokenResponse.build(access_token=access_token)
-
-
-@router.get(
-    "/me/friends",
-    status_code=status.HTTP_200_OK,
-    response_model=FriendListResponse,
-)
-def get_user_friends_handler(
-    user_id: int = Depends(get_user_id),
-    user_repo: UserRepository = Depends(),
-):
-    user: User | None = user_repo.get_user_by_id(user_id=user_id)
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found",
-        )
-
-    friends: list[tuple[int, str]] = user_repo.get_friends(user_id=user_id)
-    return FriendListResponse.build(friends=friends)

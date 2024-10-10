@@ -15,21 +15,16 @@ class UserResponse(BaseModel):
         return cls(id=user.id, username=user.username, created_at=user.created_at)
 
 
+class UserListResponse(BaseModel):
+    users: list[UserResponse]
+
+    @classmethod
+    def build(cls, users: list[User]):
+        return cls(users=[UserResponse.build(user=u) for u in users])
+
+
 class UserTokenResponse(BaseModel):
     access_token: str
     @classmethod
     def build(cls, access_token: str):
         return cls(access_token=access_token)
-
-
-class FriendResponse(BaseModel):
-    id: int
-    username: str
-
-
-class FriendListResponse(BaseModel):
-    friends: list[FriendResponse]
-
-    @classmethod
-    def build(cls, friends: list[tuple[int, str]]):
-        return cls(friends=[FriendResponse(id=f[0], username=f[1]) for f in friends])

@@ -4,7 +4,7 @@ import streamlit as st
 
 import requests
 
-from const import Page, SERVER_URL
+from _const import Page, SERVER_URL
 
 st.set_page_config(page_title="Fast Async Chat", page_icon="💬")
 st.page_link(Page.HOME, label="홈으로 돌아가기", icon="🏠")
@@ -20,7 +20,7 @@ if st.button("회원가입"):
         json={"username": new_username, "password": new_password}
     )
 
-    if response.status_code == 201:
+    if response.ok:
         st.success(f"{new_username}님, 회원가입이 완료되었습니다!")
         time.sleep(1)
         st.switch_page(Page.HOME)

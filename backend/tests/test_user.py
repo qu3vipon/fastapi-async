@@ -38,25 +38,26 @@ class TestUser:
         # then
         assert response.status_code == 200
         assert Schema({"access_token": str}).validate(response.json())
-        access_token = response.json()["access_token"]
-        assert access_token
-        payload = JWTService().decode_access_token(access_token=access_token)
+
+        token = response.json()["access_token"]
+        payload = JWTService().decode_access_token(access_token=token)
+
         assert payload["user_id"] == test_user.id
         assert payload["isa"]
 
-    def test_get_friends(self, client, test_user, test_user_relation):
+    def test_get_users(self, client, test_session, test_user, access_token, test_friend):
         # given
-        access_token = JWTService().encode_access_token(user_id=test_user.id)
 
         # when
-        response = client.get("/users/me/friends", headers={"Authorization": f"Bearer {access_token}"})
+        response = client.get("/users", headers={"Authorization": f"Bearer {access_token}"})
 
         # then
         assert response.status_code == 200
 
         assert Schema(
             {
-                "id": test_user_relation.friend_id,
-                "username": "friend",
+                "id": test_friend.id,
+                "username": test_friend.username,
+                "created_at": str,
             }
-        ).validate(response.json()["friends"][0])
+        ).validate(response.json()["users"][0])
