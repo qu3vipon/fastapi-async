@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Body
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from starlette import status
 
 from shared.authentication.dependency import authenticate
@@ -10,19 +10,6 @@ from user.request import UserAuthRequest
 from user.response import UserResponse, UserTokenResponse, UserListResponse
 
 router = APIRouter(prefix="/users", tags=["Users"])
-
-
-@router.get(
-    "",
-    status_code=status.HTTP_200_OK,
-    response_model=UserListResponse,
-)
-def get_users_handler(
-    me_id: int = Depends(authenticate),
-    user_repo: UserRepository = Depends(),
-):
-    users: list[User] = user_repo.get_users(me_id=me_id)
-    return UserListResponse.build(users=users)
 
 
 @router.post(

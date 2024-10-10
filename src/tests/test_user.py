@@ -44,20 +44,3 @@ class TestUser:
 
         assert payload["user_id"] == test_user.id
         assert payload["isa"]
-
-    def test_get_users(self, client, test_session, test_user, access_token, test_friend):
-        # given
-
-        # when
-        response = client.get("/users", headers={"Authorization": f"Bearer {access_token}"})
-
-        # then
-        assert response.status_code == 200
-
-        assert Schema(
-            {
-                "id": test_friend.id,
-                "username": test_friend.username,
-                "created_at": str,
-            }
-        ).validate(response.json()["users"][0])
