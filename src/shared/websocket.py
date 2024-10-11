@@ -20,4 +20,4 @@ class WebsocketConnectionManager:
                 await connection.send_text(f"<Them>#{str(sender_client_id)[-4:]}: {message}")
 
 
-manager = WebsocketConnectionManager()
+ws_manager = WebsocketConnectionManager()

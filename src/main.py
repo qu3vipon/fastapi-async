@@ -9,7 +9,8 @@ from starlette.responses import HTMLResponse
 from starlette.websockets import WebSocketDisconnect
 
 from shared.chat import html
-from shared.websocket import manager
+# from shared.message_broker import message_broker
+from shared.websocket import ws_manager
 from user.sync_api import router as user_sync_router
 from user.async_api import router as user_async_router
 
@@ -32,13 +33,14 @@ async def chats_handler():
 
 @app.websocket("/ws/{client_id}")
 async def websocket_handler(websocket: WebSocket, client_id: int):
-    await manager.connect(websocket, client_id)
+    await ws_manager.connect(websocket, client_id)
     try:
         while True:
             message = await websocket.receive_text()
-            await manager.broadcast(sender_client_id=client_id, message=message)
+            await ws_manager.broadcast(sender_client_id=client_id, message=message)
+            # await message_broker.publish(client_id=client_id, message=message)
     except WebSocketDisconnect:
-        manager.disconnect(websocket, client_id)
+        ws_manager.disconnect(websocket, client_id)
 
 
 @app.get("/sync/sleep")

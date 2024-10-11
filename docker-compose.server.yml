@@ -1,0 +1,52 @@
+services:
+  server_one:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: chat-server-1
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    environment:
+      - ENV=docker
+      - PORT=8000
+    volumes:
+      - ./src:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+  server_two:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: chat-server-2
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+    environment:
+      - ENV=docker
+      - PORT=8001
+    volumes:
+      - ./src:/app
+    ports:
+      - "8001:8000"
+    depends_on:
+      - db
+  db:
+    container_name: chat-db
+    image: postgres:16
+    restart: always
+    volumes:
+      - chat_db:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: chat
+      POSTGRES_USER: chat
+      POSTGRES_PASSWORD: chat-pw
+      PGDATA: /var/lib/postgresql/data/chat/
+    ports:
+      - "54320:5432"
+  redis:
+    image: redis:7.2.5
+    container_name: chat-redis
+    ports:
+      - "63790:6379"
+
+volumes:
+  chat_db:

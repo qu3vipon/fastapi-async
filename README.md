@@ -6,7 +6,13 @@
 ## Run Server
 ### Docker Compose
 ```shell
+# run db & redis
 docker compose up -d
+docker compose down
+
+# with servers
+docker compose -f docker-compose.server.yml up -d
+docker compose down --remove-orphans
 ```
 ### Sync Database
 ```shell

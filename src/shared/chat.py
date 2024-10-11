@@ -1,3 +1,5 @@
+from shared.config import settings, SERVER_PORT
+
 html = """
 <!DOCTYPE html>
 <html>
@@ -34,7 +36,7 @@ html = """
     </head>
     <body>
         <div class="container">
-          <h1 class="mt-5">💬 오픈 채팅</h1>
+          <h1 class="mt-5">💬 오픈 채팅 [PORT] </h1>
           <hr>
         <h5 class="mt-3">My ID: <span id="ws-id"></span></h2>
         <form action="" onsubmit="sendMessage(event)">
@@ -51,7 +53,7 @@ html = """
         <script>
             var client_id = Date.now()
             document.querySelector("#ws-id").textContent = client_id
-            var ws = new WebSocket(`ws://localhost:8000/ws/${client_id}`);
+            var ws = new WebSocket(`ws://localhost:PORT/ws/${client_id}`);
             ws.onmessage = function(event) {
                 var messages = document.getElementById('messages');
                 var message = document.createElement('li');
@@ -76,4 +78,4 @@ html = """
         </script>
     </body>
 </html>
-"""
+""".replace("PORT", SERVER_PORT)
