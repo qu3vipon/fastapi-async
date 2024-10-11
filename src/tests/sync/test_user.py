@@ -5,12 +5,12 @@ from shared.authentication.password import PasswordService
 from user.models import User
 
 
-class TestUser:
+class TestUserSync:
     def test_user_sign_up(self, client, test_session):
         # given
 
         # when
-        response = client.post("/users/sign-up", json={"username": "test", "password": "test-pw"})
+        response = client.post("/sync/users/sign-up", json={"username": "test", "password": "test-pw"})
 
         # then
         assert response.status_code == 201
@@ -31,7 +31,7 @@ class TestUser:
         # given
 
         # when
-        response = client.post("/users/login", json={"username": "test", "password": "test-pw"})
+        response = client.post("/sync/users/login", json={"username": "test", "password": "test-pw"})
 
         # then
         assert response.status_code == 200
@@ -47,7 +47,7 @@ class TestUser:
         # given
 
         # when
-        response = client.get("/users/me", headers={"Authorization": f"Bearer {access_token}"})
+        response = client.get("/sync/users/me", headers={"Authorization": f"Bearer {access_token}"})
 
         # then
         assert response.status_code == 200
@@ -58,3 +58,4 @@ class TestUser:
                 "created_at": test_user.created_at.isoformat(),
             }
         ).validate(response.json())
+

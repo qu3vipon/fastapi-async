@@ -1,3 +1,6 @@
+import time
+
+import requests
 from fastapi import APIRouter, Depends, HTTPException
 from starlette import status
 
@@ -5,7 +8,7 @@ from shared.authentication.dependency import authenticate
 from shared.authentication.jwt import JWTService
 from shared.authentication.password import PasswordService
 from user.models import User
-from user.repository import UserRepository
+from user.sync_repository import UserRepository
 from user.request import UserAuthRequest
 from user.response import UserResponse, UserTokenResponse
 
@@ -80,3 +83,13 @@ def get_me_handler(
             detail="User not found",
         )
     return UserResponse.build(user=user)
+
+
+@router.get(
+    '/posts',
+    status_code=status.HTTP_200_OK,
+)
+def get_posts_handler():
+    response = requests.get("https://jsonplaceholder.typicode.com/posts")
+    response.raise_for_status()
+    return response.json()

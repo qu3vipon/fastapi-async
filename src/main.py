@@ -1,119 +1,33 @@
+import asyncio
+import time
+from contextlib import asynccontextmanager
+from typing import Iterator
+
+import anyio
 from fastapi import FastAPI, WebSocket
 from starlette.responses import HTMLResponse
 from starlette.websockets import WebSocketDisconnect
 
-from user.api import router as user_router
-
-app = FastAPI(title="FastAPI Async")
-app.include_router(user_router)
-
-
-html = """
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>Chat</title>
-        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-        <style>
-        #messages {
-            list-style-type: none;
-            padding: 0;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-        }
-
-        li {
-            margin: 5px 0;
-            max-width: 80%;
-            border-radius: 10px;
-            padding: 10px;
-            color: #fff;
-        }
-
-        .my-message {
-            align-self: flex-end;
-            background-color: #007bff;
-        }
-
-        .other-message {
-            align-self: flex-start;
-            background-color: #6c757d;
-        }
-    </style>
-    </head>
-    <body>
-        <div class="container">
-          <h1 class="mt-5">💬 오픈 채팅</h1>
-          <hr>
-        <h5 class="mt-3">My ID: <span id="ws-id"></span></h2>
-        <form action="" onsubmit="sendMessage(event)">
-        <div class="input-group mb-3">
-            <input class="form-control" type="text" id="messageText" autocomplete="off"/ placeholder="메시지를 입력하세요..">
-            <button class="btn btn-dark">보내기</button>
-        </div>
-            
-        </form>
-        <ul id='messages'>
-        </ul>
-        </div>
-        
-        <script>
-            var client_id = Date.now()
-            document.querySelector("#ws-id").textContent = client_id
-            var ws = new WebSocket(`ws://localhost:8000/ws/${client_id}`);
-            ws.onmessage = function(event) {
-                var messages = document.getElementById('messages');
-                var message = document.createElement('li');
-    
-                if (event.data.startsWith("<Me>")) {
-                    var content = document.createTextNode(event.data.replace("<Me>", ""));
-                    message.classList.add('my-message');
-                } else {
-                    var content = document.createTextNode(event.data.replace("<Them>", ""));
-                    message.classList.add('other-message');
-                }
-                
-                message.appendChild(content);
-                messages.appendChild(message);
-        };
-            function sendMessage(event) {
-                var input = document.getElementById("messageText")
-                ws.send(input.value)
-                input.value = ''
-                event.preventDefault()
-            }
-        </script>
-    </body>
-</html>
-"""
+from shared.chat import html
+from shared.websocket import manager
+from user.sync_api import router as user_sync_router
+from user.async_api import router as user_async_router
 
 
-@app.get("/")
-async def get():
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> Iterator[None]:
+    limiter = anyio.to_thread.current_default_thread_limiter()
+    limiter.total_tokens = 200
+    yield
+
+app = FastAPI(title="FastAPI Async", lifespan=lifespan)
+app.include_router(router=user_sync_router, prefix="/sync")
+app.include_router(router=user_async_router, prefix="/async")
+
+
+@app.get("/chats")
+async def chats_handler():
     return HTMLResponse(html)
-
-
-class WebsocketConnectionManager:
-    def __init__(self):
-        self.connections: list[tuple[WebSocket, int]] = []
-
-    async def connect(self, websocket: WebSocket, client_id: int):
-        await websocket.accept()
-        self.connections.append((websocket, client_id))
-
-    def disconnect(self, websocket: WebSocket, client_id):
-        self.connections.append((websocket, client_id))
-
-    async def broadcast(self, sender_client_id: int, message: str):
-        for connection, client_id in self.connections:
-            if client_id == sender_client_id:
-                await connection.send_text(f"<Me>{message}")
-            else:
-                await connection.send_text(f"<Them>#{str(sender_client_id)[-4:]}: {message}")
-
-
-manager = WebsocketConnectionManager()
 
 
 @app.websocket("/ws/{client_id}")
@@ -125,3 +39,15 @@ async def websocket_handler(websocket: WebSocket, client_id: int):
             await manager.broadcast(sender_client_id=client_id, message=message)
     except WebSocketDisconnect:
         manager.disconnect(websocket, client_id)
+
+
+@app.get("/sync/sleep")
+def get_sleep_handler():
+    time.sleep(1)
+    return True
+
+
+@app.get("/async/sleep")
+async def get_async_sleep_handler():
+    await asyncio.sleep(1)
+    return True

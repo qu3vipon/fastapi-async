@@ -57,6 +57,7 @@ def test_user(test_session):
     test_session.commit()
     return user
 
+
 @pytest.fixture(scope="function")
 def access_token(test_user):
     return JWTService().encode_access_token(user_id=test_user.id)
