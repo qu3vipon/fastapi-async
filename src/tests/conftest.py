@@ -1,10 +1,11 @@
 
 import pytest
 from fastapi.testclient import TestClient
-from main import app
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy_utils import create_database, database_exists
+
+from main import app
 
 from shared.authentication.jwt import JWTService
 from shared.authentication.password import PasswordService

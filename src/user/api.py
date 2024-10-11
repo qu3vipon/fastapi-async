@@ -1,13 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException
 from starlette import status
 
-from shared.authentication.dependency import authenticate
 from shared.authentication.jwt import JWTService
 from shared.authentication.password import PasswordService
 from user.models import User
 from user.repository import UserRepository
 from user.request import UserAuthRequest
-from user.response import UserResponse, UserTokenResponse, UserListResponse
+from user.response import UserResponse, UserTokenResponse
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -32,7 +31,7 @@ def user_sign_up_handler(
         username=body.username,
         password_hash=password_service.hash_password(plain_text=body.password),
     )
-    user_repo.save(instance=new_user)
+    user_repo.save(user=new_user)
     return UserResponse.build(user=new_user)
 
 
