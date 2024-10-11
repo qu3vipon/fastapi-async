@@ -1,4 +1,3 @@
-
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
@@ -59,15 +58,5 @@ def test_user(test_session):
     return user
 
 @pytest.fixture(scope="function")
-def test_friend(test_session):
-    password_hash = PasswordService().hash_password(plain_text="friend-pw")
-    user = User.create(username="friend", password_hash=password_hash)
-    test_session.add(user)
-    test_session.commit()
-    return user
-
-@pytest.fixture(scope="function")
 def access_token(test_user):
     return JWTService().encode_access_token(user_id=test_user.id)
-
-

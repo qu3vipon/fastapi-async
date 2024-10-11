@@ -1,4 +1,3 @@
-
 from schema import Schema
 
 from shared.authentication.jwt import JWTService
@@ -30,11 +29,10 @@ class TestUser:
 
     def test_log_in(self, client, test_session, test_user):
         # given
+
         # when
-        response = client.post(
-            "/users/login",
-            json={"username": "test", "password": "test-pw"}
-        )
+        response = client.post("/users/login", json={"username": "test", "password": "test-pw"})
+
         # then
         assert response.status_code == 200
         assert Schema({"access_token": str}).validate(response.json())
@@ -44,3 +42,19 @@ class TestUser:
 
         assert payload["user_id"] == test_user.id
         assert payload["isa"]
+
+    def test_get_me(self, client, test_session, test_user, access_token):
+        # given
+
+        # when
+        response = client.get("/users/me", headers={"Authorization": f"Bearer {access_token}"})
+
+        # then
+        assert response.status_code == 200
+        assert Schema(
+            {
+                "id": test_user.id,
+                "username": test_user.username,
+                "created_at": test_user.created_at.isoformat(),
+            }
+        ).validate(response.json())

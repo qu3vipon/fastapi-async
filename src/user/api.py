@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from starlette import status
 
+from shared.authentication.dependency import authenticate
 from shared.authentication.jwt import JWTService
 from shared.authentication.password import PasswordService
 from user.models import User
@@ -61,3 +62,21 @@ def user_login_handler(
 
     access_token = jwt_service.encode_access_token(user_id=user.id)
     return UserTokenResponse.build(access_token=access_token)
+
+
+@router.get(
+    "/me",
+    status_code=status.HTTP_200_OK,
+    response_model=UserResponse,
+)
+def get_me_handler(
+    me_id: int = Depends(authenticate),
+    user_repo: UserRepository = Depends(),
+):
+    user: User | None = user_repo.get_user_by_id(user_id=me_id)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found",
+        )
+    return UserResponse.build(user=user)

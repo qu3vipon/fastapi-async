@@ -15,6 +15,7 @@ def _get_jwt(
         )
     return auth_header.credentials
 
+
 def authenticate(
     access_token: str = Depends(_get_jwt),
     jwt_service: JWTService = Depends(),

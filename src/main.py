@@ -119,7 +119,7 @@ class WebsocketConnectionManager:
 manager = WebsocketConnectionManager()
 
 
-@app.websocket('/ws/{client_id}')
+@app.websocket("/ws/{client_id}")
 async def websocket_handler(websocket: WebSocket, client_id: int):
     await manager.connect(websocket, client_id)
     try:
