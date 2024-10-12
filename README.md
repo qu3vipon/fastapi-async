@@ -4,6 +4,13 @@
 - Message Broker: Redis Pub/Sub
 
 ## Run Server
+- Python 3.11+
+
+### Install Packages
+```shell
+pip install -r src/requirements.txt
+```
+
 ### Docker Compose
 ```shell
 # run db & redis
@@ -14,7 +21,7 @@ docker compose down
 docker compose -f docker-compose.server.yml up -d
 docker compose down --remove-orphans
 ```
-### Sync Database
+### Run Migrations
 ```shell
 alembic upgrade head
 ```
