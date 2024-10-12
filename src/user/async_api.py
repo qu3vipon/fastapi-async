@@ -1,5 +1,3 @@
-import asyncio
-
 import httpx
 from fastapi import APIRouter, Depends, HTTPException
 from starlette import status
@@ -7,8 +5,8 @@ from starlette import status
 from shared.authentication.dependency import authenticate
 from shared.authentication.jwt import JWTService
 from shared.authentication.password import PasswordService
-from user.models import User
 from user.async_repository import UserRepository
+from user.models import User
 from user.request import UserAuthRequest
 from user.response import UserResponse, UserTokenResponse
 

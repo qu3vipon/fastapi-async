@@ -1,6 +1,6 @@
 import asyncio
 import json
-from typing import TypedDict, ClassVar
+from typing import ClassVar, TypedDict
 
 from redis.asyncio import Redis as AsyncRedis
 from redis.asyncio.client import PubSub
@@ -40,7 +40,7 @@ class MessageBroker:
         while True:
             message = await pubsub.get_message(ignore_subscribe_messages=True)
             if message is not None:
-                payload: MessagePayload = json.loads(message['data'])
+                payload: MessagePayload = json.loads(message["data"])
                 await ws_manager.broadcast(sender_client_id=payload["client_id"], message=payload["message"])
 
 

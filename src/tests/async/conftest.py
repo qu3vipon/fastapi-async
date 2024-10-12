@@ -1,10 +1,11 @@
 import pytest
 import pytest_asyncio
-from httpx import AsyncClient, ASGITransport
+from httpx import ASGITransport, AsyncClient
 from sqlalchemy import NullPool
-from sqlalchemy.ext.asyncio import create_async_engine, AsyncEngine, AsyncSession
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, create_async_engine
 
 from main import app
+
 from shared.authentication.jwt import JWTService
 from shared.authentication.password import PasswordService
 from shared.database.connection_async import get_async_db

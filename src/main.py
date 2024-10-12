@@ -9,10 +9,11 @@ from starlette.responses import HTMLResponse
 from starlette.websockets import WebSocketDisconnect
 
 from shared.chat import html
+
 # from shared.message_broker import message_broker
 from shared.websocket import ws_manager
-from user.sync_api import router as user_sync_router
 from user.async_api import router as user_async_router
+from user.sync_api import router as user_sync_router
 
 
 @asynccontextmanager
@@ -20,6 +21,7 @@ async def lifespan(app: FastAPI) -> Iterator[None]:
     limiter = anyio.to_thread.current_default_thread_limiter()
     limiter.total_tokens = 200
     yield
+
 
 app = FastAPI(title="FastAPI Async", lifespan=lifespan)
 app.include_router(router=user_sync_router, prefix="/sync")

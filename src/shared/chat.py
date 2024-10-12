@@ -1,4 +1,4 @@
-from shared.config import settings, SERVER_PORT
+from shared.config import SERVER_PORT
 
 html = """
 <!DOCTYPE html>
