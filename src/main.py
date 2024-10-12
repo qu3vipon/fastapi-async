@@ -28,7 +28,7 @@ app.include_router(router=user_sync_router, prefix="/sync")
 app.include_router(router=user_async_router, prefix="/async")
 
 
-@app.get("/chats")
+@app.get("/chats", include_in_schema=False)
 async def chats_handler():
     return HTMLResponse(html)
 
@@ -45,13 +45,13 @@ async def websocket_handler(websocket: WebSocket, client_id: int):
         ws_manager.disconnect(websocket, client_id)
 
 
-@app.get("/sync/sleep")
+@app.get("/sync/sleep", include_in_schema=False)
 def get_sleep_handler():
     time.sleep(1)
     return True
 
 
-@app.get("/async/sleep")
+@app.get("/async/sleep", include_in_schema=False)
 async def get_async_sleep_handler():
     await asyncio.sleep(1)
     return True
