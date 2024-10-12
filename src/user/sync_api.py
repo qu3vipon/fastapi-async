@@ -1,4 +1,3 @@
-import requests
 from fastapi import APIRouter, Depends, HTTPException
 from starlette import status
 
@@ -81,13 +80,3 @@ def get_me_handler(
             detail="User not found",
         )
     return UserResponse.build(user=user)
-
-
-@router.get(
-    "/posts",
-    status_code=status.HTTP_200_OK,
-)
-def get_posts_handler():
-    response = requests.get("https://jsonplaceholder.typicode.com/posts")
-    response.raise_for_status()
-    return response.json()
