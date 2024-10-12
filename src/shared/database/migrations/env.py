@@ -20,7 +20,6 @@ if config.config_file_name is not None:
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 from user.models import *  # noqa
-from chat.models import *  # noqa
 
 target_metadata = Base.metadata
 
