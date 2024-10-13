@@ -10,7 +10,7 @@ class WebsocketConnectionManager:
         self.connections.append((websocket, client_id))
 
     def disconnect(self, websocket: WebSocket, client_id):
-        self.connections.append((websocket, client_id))
+        self.connections.remove((websocket, client_id))
 
     async def broadcast(self, sender_client_id: int, message: str):
         for connection, client_id in self.connections:
