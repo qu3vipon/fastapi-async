@@ -31,7 +31,11 @@ pytest
 ```
 
 ## Run load test
-1. Sync / 100 Connections / 10s
+1. Sync / 10 Connections / 10s
+   - wrk -c 10 -d 10 http://127.0.0.1:8000/sync/sleep
+2. ASync / 10 Connections / 10s
+   - wrk -c 10 -d 10 http://127.0.0.1:8000/async/sleep
+3. Sync / 100 Connections / 10s
    - wrk -c 100 -d 10 http://127.0.0.1:8000/sync/sleep
-2. ASync / 100 Connections / 10s
+4. ASync / 100 Connections / 10s
    - wrk -c 100 -d 10 http://127.0.0.1:8000/async/sleep
