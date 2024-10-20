@@ -11,8 +11,7 @@ from starlette.responses import HTMLResponse
 from starlette.websockets import WebSocketDisconnect
 
 from shared.chat import html
-
-# from shared.message_broker import message_broker
+from shared.message_broker import message_broker
 from shared.websocket import ws_manager
 from user.async_api import router as user_async_router
 from user.sync_api import router as user_sync_router
@@ -41,21 +40,9 @@ async def websocket_handler(websocket: WebSocket, client_id: int):
     try:
         while True:
             message = await websocket.receive_text()
-            await ws_manager.broadcast(sender_client_id=client_id, message=message)
+            await message_broker.publish(client_id=client_id, message=message)
     except WebSocketDisconnect:
         ws_manager.disconnect(websocket, client_id)
-
-
-@app.get("/sync/sleep", include_in_schema=False)
-def get_sleep_handler():
-    time.sleep(1)
-    return True
-
-
-@app.get("/async/sleep", include_in_schema=False)
-async def get_async_sleep_handler():
-    await asyncio.sleep(1)
-    return True
 
 
 @app.get("/sync/posts")
@@ -90,3 +77,15 @@ async def get_posts_async_handler():
 
     end_time = time.perf_counter()
     return {"duration": end_time - start_time}
+
+
+@app.get("/sync/sleep", include_in_schema=False)
+def get_sleep_handler():
+    time.sleep(1)
+    return True
+
+
+@app.get("/async/sleep", include_in_schema=False)
+async def get_async_sleep_handler():
+    await asyncio.sleep(1)
+    return True

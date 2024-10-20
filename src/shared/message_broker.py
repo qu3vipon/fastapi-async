@@ -18,7 +18,12 @@ class MessageBroker:
     CHANNEL_NAME: ClassVar[str] = "openchat"
 
     def __init__(self):
-        self.client = AsyncRedis(host=settings.redis_host, port=settings.redis_port, db=0, decode_responses=True)
+        self.client = AsyncRedis(
+            host=settings.redis_host,
+            port=settings.redis_port,
+            db=0,
+            decode_responses=True,
+        )
 
     @classmethod
     def init(cls):
@@ -41,7 +46,10 @@ class MessageBroker:
             message = await pubsub.get_message(ignore_subscribe_messages=True)
             if message is not None:
                 payload: MessagePayload = json.loads(message["data"])
-                await ws_manager.broadcast(sender_client_id=payload["client_id"], message=payload["message"])
+                await ws_manager.broadcast(
+                    sender_client_id=payload["client_id"],
+                    message=payload["message"],
+                )
 
 
-# message_broker = MessageBroker.init()
+message_broker = MessageBroker.init()
