@@ -4,6 +4,8 @@ from contextlib import asynccontextmanager
 from typing import Iterator
 
 import anyio
+import httpx
+import requests
 from fastapi import FastAPI, WebSocket
 from starlette.responses import HTMLResponse
 from starlette.websockets import WebSocketDisconnect
@@ -40,7 +42,6 @@ async def websocket_handler(websocket: WebSocket, client_id: int):
         while True:
             message = await websocket.receive_text()
             await ws_manager.broadcast(sender_client_id=client_id, message=message)
-            # await message_broker.publish(client_id=client_id, message=message)
     except WebSocketDisconnect:
         ws_manager.disconnect(websocket, client_id)
 
@@ -55,3 +56,37 @@ def get_sleep_handler():
 async def get_async_sleep_handler():
     await asyncio.sleep(1)
     return True
+
+
+@app.get("/sync/posts")
+def get_posts_sync_handler():
+    start_time = time.perf_counter()
+
+    urls = [
+        "https://jsonplaceholder.typicode.com/posts",
+        "https://jsonplaceholder.typicode.com/posts",
+        "https://jsonplaceholder.typicode.com/posts",
+    ]
+    responses = []
+    for url in urls:
+        responses.append(requests.get(url))
+
+    end_time = time.perf_counter()
+    return {"duration": end_time - start_time}
+
+
+@app.get("/async/posts")
+async def get_posts_async_handler():
+    start_time = time.perf_counter()
+    urls = [
+        "https://jsonplaceholder.typicode.com/posts",
+        "https://jsonplaceholder.typicode.com/posts",
+        "https://jsonplaceholder.typicode.com/posts",
+    ]
+
+    async with httpx.AsyncClient() as client:
+        tasks = [client.get(url) for url in urls]
+        await asyncio.gather(*tasks)
+
+    end_time = time.perf_counter()
+    return {"duration": end_time - start_time}
