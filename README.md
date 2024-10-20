@@ -6,6 +6,11 @@
 ## Run Server
 - Python 3.11+
 
+### Git Clone
+```shell
+git clone -b hands-on https://github.com/qu3vipon/fastapi-async
+```
+
 ### Install Packages
 ```shell
 pip install -r src/requirements.txt
